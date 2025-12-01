@@ -29,4 +29,9 @@
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Screenshots\" />
+    <Folder Include="Reports\" />
+  </ItemGroup>
+
 </Project>
