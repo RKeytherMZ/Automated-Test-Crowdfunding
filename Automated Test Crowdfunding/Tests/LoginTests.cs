@@ -5,10 +5,6 @@ using Automated_Test_Crowdfunding.Drivers;
 using System;
 using System.IO;
 using OpenQA.Selenium.Support.Extensions;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
-
-
 
 namespace Automated_Test_Crowdfunding.Tests
 {
@@ -33,14 +29,11 @@ namespace Automated_Test_Crowdfunding.Tests
                 TakeScreenshot(TestContext.CurrentContext.Test.Name);
             }
 
-            // Llama a Dispose
             Dispose();
         }
 
-        // Nuevo método para satisfacer IDisposable
         public void Dispose()
         {
-            // Verifica si el driver existe y luego lo cierra.
             _driver?.Quit();
             _driver = null;
         }
@@ -52,12 +45,12 @@ namespace Automated_Test_Crowdfunding.Tests
                 var screenshotsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Screenshots");
                 Directory.CreateDirectory(screenshotsDir);
 
-                string filePath = Path.Combine(screenshotsDir, $"{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+                string filePath = Path.Combine(screenshotsDir,
+                    $"{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png");
 
-                var ss = ((ITakesScreenshot)_driver).GetScreenshot();
-                ss.SaveAsFile(filePath);
+                ((ITakesScreenshot)_driver).GetScreenshot().SaveAsFile(filePath);
 
-                TestContext.AddTestAttachment(filePath, "Screenshot on Failure");
+                TestContext.AddTestAttachment(filePath, "Screenshot");
             }
             catch (Exception ex)
             {
@@ -67,26 +60,46 @@ namespace Automated_Test_Crowdfunding.Tests
 
         // -------------------- TESTS --------------------
 
+        /// <summary>
+        /// 1. Camino feliz: credenciales válidas
+        /// </summary>
         [Test]
         public void Login_With_Valid_Credentials_Should_Succeed()
         {
             _loginPage.GoTo();
-
-            _loginPage.Login("admin", "MyS3cureP@ssword");
+            _loginPage.Login("admin", "MyS34567IO");
 
             Assert.That(_loginPage.IsLoginSuccessful(), Is.True,
-                 "El login NO fue exitoso con credenciales válidas.");
+                "El login debe ser exitoso con credenciales válidas.");
         }
 
+
+        /// <summary>
+        /// 2. Prueba negativa: credenciales incorrectas
+        /// </summary>
         [Test]
         public void Login_With_Invalid_Credentials_Should_Fail()
         {
             _loginPage.GoTo();
-
             _loginPage.Login("admin", "password_incorrecta");
 
             Assert.That(_loginPage.IsLoginSuccessful(), Is.False,
-                 "El login DEBIÓ fallar pero pasó.");
+                "El login NO debe permitir credenciales incorrectas.");
+        }
+
+
+        /// <summary>
+        /// 3. Prueba de límite: campos vacíos → debe fallar
+        /// </summary>
+        [Test]
+        public void Login_With_Empty_Fields_Should_Fail()
+        {
+            _loginPage.GoTo();
+            _loginPage.Login("", "");
+
+            Assert.That(_loginPage.IsLoginSuccessful(), Is.False,
+                "El login NO debe permitir campos vacíos.");
         }
     }
 }
+

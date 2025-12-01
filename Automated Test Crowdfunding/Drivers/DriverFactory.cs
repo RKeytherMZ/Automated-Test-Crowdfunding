@@ -17,18 +17,21 @@ namespace Automated_Test_Crowdfunding.Drivers
             options.AddArgument("--disable-infobars");
             options.AddArgument("--disable-notifications");
             options.AddArgument("--disable-popup-blocking");
+            options.AddArgument("--disable-dev-shm-usage"); // Para entornos Linux/Docker
+            options.AddArgument("--no-sandbox"); // Para entornos CI/CD
 
             // Modo headless opcional
             if (headless)
             {
                 options.AddArgument("--headless=new");
+                options.AddArgument("--disable-gpu");
                 options.AddArgument("--window-size=1920,1080");
             }
 
             IWebDriver driver = new ChromeDriver(options);
 
             // Timeout global (20 segundos)
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(0);
             driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(20);
             driver.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(20);
 
